@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter.ttk import *
 from decimal import Decimal, getcontext
 
-getcontext().prec = 20  # устанавливаем точность вычислений
+getcontext().prec = 20
 
 def format_decimal(number, decimal_places):
     return f'{number:.{decimal_places}f}'
