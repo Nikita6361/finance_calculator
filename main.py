@@ -1,35 +1,71 @@
 from tkinter import *
 from tkinter.ttk import *
 from decimal import Decimal, getcontext
+import re
 
-getcontext().prec = 20
+getcontext().prec = 20  # устанавливаем точность вычислений
 
-def format_decimal(number, decimal_places):
-    return f'{number:.{decimal_places}f}'
+def check_number(number):
+    # Паттерн для проверки формата чисел
+    pattern = r'^[+-]?(\d{1,3}( ?\d{3})*|\d+)(\.\d+)?$'
+    
+    # Проверка соответствия числа паттерну
+    if re.match(pattern, number):
+        return True
+    else:
+        return False
+
+
+def format_decimal(number, precision=6):
+    # Преобразуем число в строку
+    number_str = str(number)
+    
+    # Разделяем целую и десятичную части числа
+    parts = number_str.split(".")
+    
+    # Форматируем целую часть числа
+    integer_part = "{:,}".format(int(parts[0])).replace(",", " ")
+    
+    # Форматируем десятичную часть числа, если она есть
+    decimal_part = ""
+    if len(parts) > 1:
+        decimal_part = parts[1][:precision]
+    if number < 0 and integer_part[0] != "-":
+        integer_part = "-" + integer_part
+    
+    if decimal_part == "":
+        return integer_part
+    # Выводим отформатированное число
+    return f"{integer_part}.{decimal_part}"
+
+
 
 def on_click(): 
     try:
+        if not check_number(entry_num1.get()) or not check_number(entry_num2.get()):
+            raise ValueError
+        num1 = Decimal(entry_num1.get().replace(',', '.').replace(" ", ""))
+        num2 = Decimal(entry_num2.get().replace(',', '.').replace(" ", ""))
         if combo.get() == "Сложение":  
-            num1 = Decimal(entry_num1.get().replace(',', '.'))
-            num2 = Decimal(entry_num2.get().replace(',', '.'))
             result = num1 + num2
-
-            if abs(result) > 1000000000000:
-                label_result['text'] = 'Переполнение'
-            else:
-                label_result['text'] = f'Результат: {format_decimal(result, 15)}'
-        else:
-            num1 = Decimal(entry_num1.get().replace(',', '.'))
-            num2 = Decimal(entry_num2.get().replace(',', '.'))
+        elif combo.get() == "Разность":
             result = num1 - num2
-
-            if abs(result) > 1000000000000:
-                label_result['text'] = 'Переполнение'
+        elif combo.get() == "Умножение":
+            result = num1 * num2
+        elif combo.get() == "Деление":
+            if num2 == 0:
+                label_result['text'] = 'Ошибка: Деление на ноль'
+                return None
             else:
-                label_result['text'] = f'Результат: {format_decimal(result, 15)}'
+                result = num1 / num2
+                result = round(result, 6)
+        if abs(result) > 1000000000000:
+                label_result['text'] = 'Переполнение'
+        else:
+            label_result['text'] = f'Результат: {format_decimal(result, 6)}'
+        
     except ValueError:
         label_result['text'] = 'Ошибка ввода'
-
 
 
 root = Tk()
@@ -56,7 +92,7 @@ selected = BooleanVar()
 combo = Combobox(root)
 combo.place(x=200, y=200)
 
-combo['values'] = ("Сложение", "Разность")
+combo['values'] = ("Сложение", "Разность", "Умножение", "Деление")
 combo.current(0) 
 
 button_sum = Button(root, text='Получить результат', command=on_click)
