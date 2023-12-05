@@ -59,6 +59,7 @@ def apply_opp(combo, numa, numb):
 
 def on_click(): 
     try:
+        label_round['text'] = ""
         if not check_number(entry_num1.get()) or not check_number(entry_num2.get()):
             raise ValueError
         num1 = Decimal(entry_num1.get().replace(',', '.').replace(" ", ""))
@@ -115,7 +116,7 @@ def on_click():
                 decimal.Decimal('1'),
                 rounding=decimal.ROUND_DOWN
             )
-        label_round['text'] = rounded
+        label_round['text'] = 'Округленный результат: {}'.format(rounded)
     except ValueError:
         label_result['text'] = 'Ошибка ввода'
 
